@@ -31,10 +31,10 @@ Player player1 = {0, 0, 1, 1};
 Player player2 = {0, 0, 1, 1};
 
 typedef struct {
-    int A;      // Accumulator or operand 1
-    int B;      // Operand 2
-    int RES;    // Result
-    int FLAG;   // For conditions like zero, win detection, etc.
+    int A;      
+    int B;      
+    int RES;    
+    int FLAG;  
 } RegisterSet;
 
 RegisterSet reg;
@@ -78,7 +78,7 @@ int main() {
     load_stats();
 
     while (1) {
-        init_game();
+    init_game();
         int current_player = PLAYER1;
         int game_over = 0;
 
@@ -174,9 +174,7 @@ void init_game() {
     tempBottm = 1;
 
     srand(time(NULL));
-
-    // NEW: Animate to random top selector
-    int random_top = (rand() % 9) + 1;  // Random between 1 and 9
+    int random_top = (rand() % 9) + 1;  
     while (top_selector != random_top) {
         if (top_selector < random_top)
             top_selector++;
@@ -186,24 +184,20 @@ void init_game() {
         draw_board(PLAYER1);
         show_stats();
         refresh();
-        usleep(150000);  // 150ms delay for animation
+        usleep(150000);  
     }
-
-    // Save as P1's initial selector
-
     usleep(200000);
         starting =0;
-    player1.prev_top = top_selector;
+    player1.prev_top = random_top;
 
 }
 
 
 void draw_board(int current_player) {
-    // Show controls at the top (row 0)
+
             attron(COLOR_PAIR(3));
     mvprintw(0, 0, "Side Arrows: Top Selector | A/D: Bottom Selector \nEnter: Select       | r: Retry |       ESC: Exit");
 
-    // Player info (row 1)
     attron(COLOR_PAIR(1));
     mvprintw(2, 0, "Player 1: [P1]");
     attroff(COLOR_PAIR(1));
@@ -211,10 +205,6 @@ void draw_board(int current_player) {
     attron(COLOR_PAIR(2));
     mvprintw(2, 25, "Computer: [CP]");
     attroff(COLOR_PAIR(2));
-
-    // Turn indicator (row 3)
-    
-    
     if (starting ==1 ) {
         attron(COLOR_PAIR(3));
         mvprintw(4, 0, "            Randomizing!");
@@ -229,7 +219,6 @@ void draw_board(int current_player) {
         attroff(COLOR_PAIR(2));
     }
 
-    // Top selector (row 4)
     mvprintw(5, 0, "   ");
     for (int i = 1; i <= 9; i++) {
         if (i == top_selector) {
@@ -241,13 +230,11 @@ void draw_board(int current_player) {
         }
     }
 
-    // Column numbers (row 5)
     mvprintw(6, 0, "   ");
     for (int i = 1; i <= 9; i++) {
         printw(" %2d ", i);
     }
 
-    // **Bottom selector - Kept at row 6**
     mvprintw(7, 0, "   ");
     for (int i = 1; i <= 9; i++) {
         if (i == bottom_selector) {
@@ -259,9 +246,8 @@ void draw_board(int current_player) {
         }
     }
 
-    // Game grid (starting row 8)
     for (int i = 0; i < GRID_SIZE; i++) {
-        mvprintw(9 + i, 8, "");  // Grid now starts from row 8 (below the selectors)
+        mvprintw(9 + i, 8, "");  
         for (int j = 0; j < GRID_SIZE; j++) {
             if (marks[i][j] == PLAYER1) {
                 attron(COLOR_PAIR(1));
@@ -277,44 +263,37 @@ void draw_board(int current_player) {
         }
     }
 
-    // Draw a box around the game grid
-    int box_top = 8;                // Box starts at row 7 (just above the grid)
-    int box_left = 7;               // Box starts 8 columns to the right
-    int box_height = GRID_SIZE + 2;  // One row above and below the grid
-    int box_width = GRID_SIZE * 4 + 2; // Each cell is 4 chars + left/right padding
+    int box_top = 8;         
+    int box_left = 7;           
+    int box_height = GRID_SIZE + 2;  
+    int box_width = GRID_SIZE * 4 + 2; 
 
-    // Top border
     mvaddch(box_top, box_left, ACS_ULCORNER);
     for (int i = 1; i < box_width - 1; i++) addch(ACS_HLINE);
     addch(ACS_URCORNER);
 
-    // Middle vertical borders
     for (int i = 1; i < box_height - 1; i++) {
         mvaddch(box_top + i, box_left, ACS_VLINE);
         mvaddch(box_top + i, box_left + box_width - 1, ACS_VLINE);
     }
-
-    // Bottom border
     mvaddch(box_top + box_height - 1, box_left, ACS_LLCORNER);
     for (int i = 1; i < box_width - 1; i++) addch(ACS_HLINE);
     addch(ACS_LRCORNER);
 }
 void handle_input(int *current_player, int *game_over) {
     int ch;
-    int selector_changed = 0;  // 0 = none, 1 = top changed, 2 = bottom changed
+    int selector_changed = 0;  
 
-    // Start from previous positions
-// Start from the last positions used by the computer
-top_selector = player2.prev_top;
-bottom_selector = player2.prev_bottom;
-
-
+top_selector = player1.prev_top;
+bottom_selector = player1.prev_bottom;
+player2.prev_top = player1.prev_top;
     while (1) {
+
         ch = getch();
 
         if (ch == KEY_LEFT || ch == KEY_RIGHT) {
             if (selector_changed == 2) {
-                bottom_selector = player1.prev_bottom;
+                bottom_selector = player2.prev_bottom;
             }
             selector_changed = 1;
             if (ch == KEY_LEFT)
@@ -324,7 +303,7 @@ bottom_selector = player2.prev_bottom;
 
         } else if (ch == 'a' || ch == 'd') {
             if (selector_changed == 1) {
-                top_selector = player1.prev_top;
+                top_selector = player2.prev_top;
             }
             selector_changed = 2;
             if (ch == 'a')
@@ -338,8 +317,8 @@ bottom_selector = player2.prev_bottom;
                 make_move(prod, *current_player);
                 player1.moves++;
 
-                player1.prev_top = top_selector;
-                player1.prev_bottom = bottom_selector;
+                player1.prev_top = player2.prev_top ;
+                player1.prev_bottom = player2.prev_bottom;
 
                 if (check_winner(*current_player)) {
                     *game_over = PLAYER1;
@@ -356,7 +335,6 @@ bottom_selector = player2.prev_bottom;
             *game_over = -1;
             break;
         }
-
         clear();
         draw_board(*current_player);
         show_stats();
@@ -396,19 +374,17 @@ void animate_computer_choice(int top, int bottom, int current_player) {
         if (bottom_selector < bottom) bottom_selector++;
         else if (bottom_selector > bottom) bottom_selector--;
 
-        clear(); // Ensure screen is fully redrawn
+        clear(); 
         draw_board(current_player);
         show_stats();
         refresh();
-        usleep(150000); // 150ms = 0.15 second pause
+        usleep(150000); 
     }
-
-    // Final frame
     clear();
     draw_board(current_player);
     show_stats();
     refresh();
-    usleep(200000); // Optional: Hold the final position for a moment
+    usleep(200000); 
 }
 
 
@@ -453,7 +429,6 @@ void computer_move(int *game_over) {
         make_move(best_val, PLAYER2);
         player2.moves++;
 
-        // Save selector state for Computer
         player2.prev_top = best_top;
         player2.prev_bottom = best_bottom;
 
@@ -478,8 +453,6 @@ int check_draw() {
 int check_winner(int player) {
     for (int i = 0; i < GRID_SIZE; i++) {
         for (int j = 0; j < GRID_SIZE; j++) {
-
-            // Horizontal check
             if (j <= GRID_SIZE - WIN_COUNT) {
                 reg.FLAG = 1;
                 for (int k = 0; k < WIN_COUNT; k++) {
@@ -489,7 +462,6 @@ int check_winner(int player) {
                 if (reg.FLAG) return 1;
             }
 
-            // Vertical check
             if (i <= GRID_SIZE - WIN_COUNT) {
                 reg.FLAG = 1;
                 for (int k = 0; k < WIN_COUNT; k++) {
@@ -524,12 +496,10 @@ int heuristic_score(int x, int y, int player) {
                         opponent_count++;
                 }
             }
-
-            // Prioritize extending own line and blocking opponent
             if (opponent_count == 0)
-                score += (1 << player_count);  // exponential reward
+                score += (1 << player_count);  
             if (player_count == 0)
-                score += (1 << opponent_count); // defensive reward
+                score += (1 << opponent_count); 
         }
     }
 
